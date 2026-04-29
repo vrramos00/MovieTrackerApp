@@ -55,10 +55,10 @@ export default function AuthForms({
                   onChange={(e) => {
                     const value = e.target.value;
                     setLoginEmail(value);
-                    setLoginErrors((prev) => ({
-                      ...prev,
-                      email: value.length > 0 && !validateEmail(value) ? "Please enter a valid email" : ""
-                    }));
+                    // setLoginErrors((prev) => ({
+                    //   ...prev,
+                    //   email: value.length > 0 && !validateEmail(value) ? "Please enter a valid email" : ""
+                    // }));
                   }}
                   disabled={loading}
                 />
@@ -75,11 +75,11 @@ export default function AuthForms({
                   onChange={(e) => {
                     const value = e.target.value;
                     setLoginPassword(value);
-                    setLoginErrors((prev) => ({
-                      ...prev,
-                      password: value.length > 0 && !validatePassword(value) ? "Password must be at least 6 characters" : ""
-                    }));
-                  }}
+                //     setLoginErrors((prev) => ({
+                //       ...prev,
+                //       password: value.length > 0 && !validatePassword(value) ? "Password must be at least 6 characters" : ""
+                //     }));
+                   }}
                   disabled={loading}
                 />
                 {loginErrors.password && <div className="field-error">{loginErrors.password}</div>}
