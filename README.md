@@ -18,6 +18,7 @@ A complete end-to-end web application for users to discover movies, save their f
 ✅ **Movie Management**
 - View saved movies in personal list
 - Mark movies as favorites (toggle ⭐)
+- Mark movies as watched, including watched date
 - Remove movies from list
 - Write and edit movie reviews
 - Persistent storage in database
