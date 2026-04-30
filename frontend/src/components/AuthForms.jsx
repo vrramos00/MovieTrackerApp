@@ -1,3 +1,5 @@
+import { COUNTRIES } from "../countries";
+
 export default function AuthForms({
   authError,
   loading,
@@ -162,10 +164,7 @@ export default function AuthForms({
               </div>
 
               <div className="field-group">
-                <input
-                  type="text"
-                  placeholder="Location"
-                  autoComplete="address-level2"
+                <select
                   className={registerErrors.location ? "input-error" : ""}
                   value={registerLocation}
                   onChange={(e) => {
@@ -174,12 +173,21 @@ export default function AuthForms({
                     setRegisterErrors((prev) => ({
                       ...prev,
                       location: value.length > 0 && !validateLocation(value)
-                        ? "Please enter a valid location"
+                        ? "Please select a valid country"
                         : ""
                     }));
                   }}
                   disabled={loading}
-                />
+                >
+                  <option value="" disabled>
+                    Select your country
+                  </option>
+                  {COUNTRIES.map((country) => (
+                    <option key={country} value={country}>
+                      {country}
+                    </option>
+                  ))}
+                </select>
                 {registerErrors.location && <div className="field-error">{registerErrors.location}</div>}
               </div>
 

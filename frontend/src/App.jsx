@@ -86,7 +86,7 @@ export default function App() {
   };
 
   const validateLocation = (location) => {
-    return location.trim().length >= 3;
+    return location.trim().length > 0;
   };
 
   // Auth handlers
