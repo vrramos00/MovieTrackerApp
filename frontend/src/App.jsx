@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AuthForms from "./components/AuthForms";
 
 const API = "http://localhost:3000";
@@ -30,6 +30,8 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("search"); // "search" or "favorites"
   const [actionMessage, setActionMessage] = useState("");
+  const [actionType, setActionType] = useState("success");
+  const messageTimerRef = useRef(null);
 
   // Load user from localStorage on mount
   useEffect(() => {
@@ -39,7 +41,25 @@ export default function App() {
       setUser(parsedUser);
       loadMyMovies(parsedUser.id);
     }
+
+    return () => {
+      if (messageTimerRef.current) {
+        clearTimeout(messageTimerRef.current);
+      }
+    };
   }, []);
+
+  const showMessage = (message, type = "success", duration = 3200) => {
+    if (messageTimerRef.current) {
+      clearTimeout(messageTimerRef.current);
+    }
+    setActionMessage(message);
+    setActionType(type);
+    messageTimerRef.current = setTimeout(() => {
+      setActionMessage("");
+      messageTimerRef.current = null;
+    }, duration);
+  };
 
   // Validation functions
   const validateEmail = (email) => {
@@ -243,6 +263,10 @@ export default function App() {
   };
 
   const handleLogout = () => {
+    if (messageTimerRef.current) {
+      clearTimeout(messageTimerRef.current);
+      messageTimerRef.current = null;
+    }
     setUser(null);
     localStorage.removeItem("movieTrackerUser");
     setMyMovies([]);
@@ -266,7 +290,7 @@ export default function App() {
   const searchMovies = async (e) => {
     e.preventDefault();
     if (!query.trim()) {
-      setActionMessage("Please enter a movie title");
+      showMessage("Please enter a movie title", "error");
       return;
     }
 
@@ -286,11 +310,11 @@ export default function App() {
       if (data.results && data.results.length > 0) {
         setSearchResults(data.results);
       } else {
-        setActionMessage("No movies found. Try a different search.");
+        showMessage("No movies found. Try a different search.", "error");
         setSearchResults([]);
       }
     } catch (err) {
-      setActionMessage(`Search error: ${err.message}`);
+      showMessage(`Search error: ${err.message}`, "error");
       setSearchResults([]);
     } finally {
       setLoading(false);
@@ -318,10 +342,10 @@ export default function App() {
         throw new Error(data.error || "Failed to save movie");
       }
 
-      setActionMessage(`"${movie.title}" added to your list!`);
+      showMessage(`"${movie.title}" added to your list!`, "success");
       await loadMyMovies(user.id);
     } catch (err) {
-      setActionMessage(err.message);
+      showMessage(err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -345,10 +369,10 @@ export default function App() {
         throw new Error(data.error || "Failed to delete movie");
       }
 
-      setActionMessage("Movie removed!");
+      showMessage("Movie removed!", "success");
       await loadMyMovies(user.id);
     } catch (err) {
-      setActionMessage(err.message);
+      showMessage(err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -370,10 +394,10 @@ export default function App() {
         throw new Error(data.error || "Failed to update favorite");
       }
 
-      setActionMessage("Favorite updated!");
+      showMessage("Favorite updated!", "success");
       await loadMyMovies(user.id);
     } catch (err) {
-      setActionMessage(err.message);
+      showMessage(err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -395,10 +419,10 @@ export default function App() {
         throw new Error(data.error || "Failed to update watched status");
       }
 
-      setActionMessage(currentWatched ? "Marked unwatched." : "Marked as watched!");
+      showMessage(currentWatched ? "Marked unwatched." : "Marked as watched!", "success");
       await loadMyMovies(user.id);
     } catch (err) {
-      setActionMessage(err.message);
+      showMessage(err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -430,12 +454,12 @@ export default function App() {
         throw new Error(data.error || "Failed to save review");
       }
 
-      setActionMessage("Review saved!");
+      showMessage("Review saved!", "success");
       setEditingMovieId(null);
       setEditingReview("");
       await loadMyMovies(user.id);
     } catch (err) {
-      setActionMessage(err.message);
+      showMessage(err.message, "error");
     } finally {
       setLoading(false);
     }
@@ -510,8 +534,11 @@ export default function App() {
 
       {/* Messages */}
       {actionMessage && (
-        <div className={`alert ${actionMessage.includes("error") ? "alert-error" : "alert-success"}`}>
-          {actionMessage}
+        <div className={`alert ${actionType === "error" ? "alert-error" : "alert-success"}`}>
+          <span className="alert-icon">
+            {actionType === "error" ? "⚠️" : "✅"}
+          </span>
+          <span className="alert-message">{actionMessage}</span>
         </div>
       )}
 
